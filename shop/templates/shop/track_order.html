@@ -1,0 +1,25 @@
+{% extends 'shop/base.html' %}
+{% block title %}پیگیری سفارش | SHESTAR{% endblock %}
+{% block content %}
+<section class="page-hero compact"><div class="container"><span class="kicker">TRACK ORDER</span><h1>پیگیری سفارش</h1><p>شماره سفارش و موبایلی که موقع خرید وارد کردی را بنویس.</p></div></section>
+
+<div class="container track-layout">
+  <section class="track-form-card"><form method="post">{% csrf_token %}{% if form.non_field_errors %}<div class="form-error-block">{{ form.non_field_errors }}</div>{% endif %}<label class="field">{{ form.order_number.label_tag }}{{ form.order_number }}{{ form.order_number.errors }}</label><label class="field">{{ form.mobile.label_tag }}{{ form.mobile }}{{ form.mobile.errors }}</label><button class="btn btn-dark full">نمایش وضعیت سفارش</button></form></section>
+
+  {% if order %}<section class="tracking-result">
+    <div class="tracking-top"><div><span class="kicker">{{ order.order_number }}</span><h2>{{ order.get_status_display }}</h2><p>ثبت شده در {{ order.created_at|date:"Y/m/d — H:i" }}</p></div><b>{{ order.display_total }}</b></div>
+    <div class="timeline">
+      <div class="active"><i></i><span>ثبت سفارش</span></div>
+      <div class="{% if order.status != 'pending_payment' and order.status != 'cancelled' %}active{% endif %}"><i></i><span>پرداخت / بررسی</span></div>
+      <div class="{% if order.status == 'preparing' or order.status == 'shipped' or order.status == 'delivered' %}active{% endif %}"><i></i><span>آماده سازی</span></div>
+      <div class="{% if order.status == 'shipped' or order.status == 'delivered' %}active{% endif %}"><i></i><span>ارسال</span></div>
+      <div class="{% if order.status == 'delivered' %}active{% endif %}"><i></i><span>تحویل</span></div>
+    </div>
+    {% if order.status == 'cancelled' %}<div class="cancel-box">این سفارش لغو شده است.</div>{% endif %}
+    {% if order.parcel_tracking_code %}<div class="tracking-code"><span>کد رهگیری مرسوله</span><b dir="ltr">{{ order.parcel_tracking_code }}</b></div>{% endif %}
+    <div class="tracked-items">{% for item in order.items.all %}<div><span>{{ item.brand_name }} — {{ item.product_title }} <small>سایز {{ item.size }} × {{ item.quantity }}</small></span><b>{{ item.line_total|floatformat:0 }} تومان</b></div>{% endfor %}</div>
+
+    {% if order.payment_method == 'card_transfer' %}{% if order.status == 'pending_payment' or order.status == 'payment_review' %}<div class="track-receipt"><h3>رسید پرداخت</h3><form class="receipt-form" action="{% url 'shop:receipt_upload' order.order_number %}" method="post" enctype="multipart/form-data">{% csrf_token %}<input type="hidden" name="mobile" value="{{ order.mobile }}"><label>تصویر رسید {{ receipt_form.image }}</label><label>توضیح {{ receipt_form.note }}</label><button class="btn btn-outline">ارسال رسید</button></form></div>{% endif %}{% endif %}
+  </section>{% endif %}
+</div>
+{% endblock %}

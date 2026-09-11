@@ -1,0 +1,13 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | SHESTAR Admin{% endblock %}
+{% block branding %}
+<div class="shestar-admin-brand">
+  <img src="{% static 'shop/images/shestar-logo.webp' %}" alt="SHESTAR">
+  <div><strong>SHESTAR</strong><span>مدیریت فروشگاه</span></div>
+</div>
+{% endblock %}
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'shop/css/admin.css' %}">{% endblock %}
+{% block nav-global %}
+<a class="view-store-link" href="{% url 'shop:home' %}" target="_blank">مشاهده فروشگاه ↗</a>
+{% endblock %}

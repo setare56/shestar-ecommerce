@@ -1,0 +1,53 @@
+{# PRODUCT PAGE: gallery, size/stock selection and add-to-cart. #}
+{% extends 'shop/base.html' %}
+{% block title %}{{ product.brand.name }} {{ product.title }} | SHESTAR{% endblock %}
+{% block description %}خرید {{ product.title }} از برند {{ product.brand.name }} با نمایش سایز و موجودی واقعی.{% endblock %}
+{% block content %}
+<div class="container breadcrumb"><a href="{% url 'shop:home' %}">خانه</a><span>›</span><a href="{% url 'shop:shop_list' %}">فروشگاه</a><span>›</span><a href="{% url 'shop:shop_list' %}?brand={{ product.brand.slug }}">{{ product.brand.name }}</a><span>›</span><b>{{ product.title }}</b></div>
+
+<section class="container product-page">
+  <div class="product-gallery">
+    <div class="main-image">{% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.brand.name }} {{ product.title }}" data-main-product-image>{% else %}<div class="product-placeholder large">SHESTAR</div>{% endif %}</div>
+    {% if product.images.all %}<div class="thumb-row">{% if product.image %}<button type="button" data-gallery-src="{{ product.image.url }}"><img src="{{ product.image.url }}" alt=""></button>{% endif %}{% for pic in product.images.all %}<button type="button" data-gallery-src="{{ pic.image.url }}"><img src="{{ pic.image.url }}" alt="{{ pic.alt_text|default:product.title }}"></button>{% endfor %}</div>{% endif %}
+  </div>
+
+  <div class="product-info">
+    <a class="product-brand-link" href="{% url 'shop:shop_list' %}?brand={{ product.brand.slug }}">{{ product.brand.name }}</a>
+    <h1>{{ product.title }}</h1>
+    <div class="detail-badges">{% if product.original_guarantee %}<span>✓ ضمانت اصالت</span>{% endif %}<span>{{ product.get_status_display }}</span>{% if product.is_new %}<span>جدید</span>{% endif %}</div>
+    <div class="detail-price"><strong>{{ product.display_price }}</strong>{% if product.display_compare_price %}<del>{{ product.display_compare_price }}</del><em>٪{{ product.discount_percent }} تخفیف</em>{% endif %}</div>
+    {% if product.description %}<p class="detail-description">{{ product.description|linebreaksbr }}</p>{% endif %}
+
+    <form class="add-form js-add-cart" action="{% url 'shop:cart_add' %}" method="post">
+      {% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}">
+      <div class="size-head"><b>انتخاب سایز</b><a href="#size-guide">راهنمای سایز</a></div>
+      <div class="size-options">
+        {% for variant in variants %}
+          <label class="size-option {% if variant.stock < 1 %}disabled{% endif %}"><input type="radio" name="variant_id" value="{{ variant.id }}" {% if variant.stock < 1 %}disabled{% endif %}><span>{{ variant.size }}</span>{% if variant.stock > 0 and variant.stock <= 2 %}<small>{{ variant.stock }} عدد</small>{% endif %}</label>
+        {% empty %}<p class="muted">برای این محصول هنوز سایز ثبت نشده است.</p>{% endfor %}
+      </div>
+      {% if product.in_stock %}<button class="btn btn-dark full add-to-cart" type="submit">افزودن به سبد خرید</button>{% else %}<button class="btn btn-disabled full" type="button" disabled>فعلاً ناموجود</button>{% endif %}
+    </form>
+
+    <div class="product-facts">
+      {% if product.brand_product_code %}<div><span>کد محصول برند</span><b dir="ltr">{{ product.brand_product_code }}</b></div>{% endif %}
+      {% if product.sku %}<div><span>کد SHESTAR</span><b dir="ltr">{{ product.sku }}</b></div>{% endif %}
+      {% if product.color %}<div><span>رنگ</span><b>{{ product.color }}</b></div>{% endif %}
+      {% if product.material %}<div><span>جنس</span><b>{{ product.material }}</b></div>{% endif %}
+      {% if product.fit %}<div><span>فیت</span><b>{{ product.fit }}</b></div>{% endif %}
+      {% if product.source_url %}<div><span>مرجع محصول</span><a href="{{ product.source_url }}" target="_blank" rel="nofollow noopener">مشاهده لینک مرجع ↗</a></div>{% endif %}
+    </div>
+
+    <details class="detail-accordion" open><summary>ارسال و تحویل</summary><p>هزینه ارسال در مرحله ثبت سفارش محاسبه می‌شود. بعد از ارسال، کد رهگیری در صفحه پیگیری سفارش نمایش داده می‌شود.</p></details>
+    <details class="detail-accordion"><summary>اصالت کالا</summary><p>{{ site_settings.authenticity_text }}</p></details>
+    {% if product.care %}<details class="detail-accordion"><summary>شستشو و نگهداری</summary><p>{{ product.care|linebreaksbr }}</p></details>{% endif %}
+  </div>
+</section>
+
+<section class="container size-guide" id="size-guide">
+  <div><span class="kicker">SIZE GUIDE</span><h2>قبل از انتخاب سایز</h2></div>
+  <p>سایزبندی بین برندها متفاوت است. اگر اندازه‌های دقیق این مدل را داری، در توضیحات محصول ثبت کن. برای آیتم‌هایی که سایز حساس دارند، مشتری باید قبل از خرید اندازه لباس را با لباس مشابه خودش مقایسه کند.</p>
+</section>
+
+{% if related_products %}<section class="section container"><div class="section-head"><div><span class="kicker">YOU MAY ALSO LIKE</span><h2>شاید این‌ها رو هم دوست داشته باشی</h2></div></div><div class="product-grid">{% for product in related_products %}{% include 'shop/partials/product_card.html' with product=product %}{% endfor %}</div></section>{% endif %}
+{% endblock %}

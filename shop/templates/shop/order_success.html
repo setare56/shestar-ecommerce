@@ -1,0 +1,29 @@
+{% extends 'shop/base.html' %}
+{% block title %}سفارش {{ order.order_number }} | SHESTAR{% endblock %}
+{% block content %}
+<section class="success-hero"><div class="container"><span class="success-mark">✓</span><span class="kicker">ORDER RECEIVED</span><h1>سفارشت ثبت شد.</h1><p>شماره سفارش را نگه دار؛ برای پیگیری به آن و شماره موبایلت نیاز داری.</p><div class="order-number" dir="ltr">{{ order.order_number }}</div></div></section>
+
+<div class="container success-layout">
+  <section>
+    <div class="success-card"><h2>وضعیت فعلی</h2><span class="status-pill status-{{ order.status }}">{{ order.get_status_display }}</span><p>مبلغ نهایی: <b>{{ order.display_total }}</b></p></div>
+
+    {% if order.payment_method == 'card_transfer' %}<div class="success-card payment-card"><h2>پرداخت کارت به کارت</h2>
+      {% if setting.card_number %}<p>مبلغ <b>{{ order.display_total }}</b> را به کارت زیر واریز کن و بعد تصویر رسید را همین‌جا بفرست.</p><div class="bank-box"><span>{{ setting.bank_name|default:'اطلاعات بانکی SHESTAR' }}</span><strong dir="ltr">{{ setting.card_number }}</strong><small>{{ setting.card_holder }}</small><button type="button" data-copy="{{ setting.card_number }}">کپی شماره کارت</button></div>
+      {% else %}<p>اطلاعات کارت هنوز در تنظیمات فروشگاه ثبت نشده است. برای پرداخت از اینستاگرام با SHESTAR هماهنگ کن.</p><a class="btn btn-outline" href="{{ setting.instagram_url }}" target="_blank" rel="noopener">هماهنگی در Instagram ↗</a>{% endif %}
+    </div>{% else %}<div class="success-card"><h2>هماهنگی پرداخت</h2><p>سفارش ثبت شده است. برای تکمیل پرداخت با SHESTAR در اینستاگرام هماهنگ کن.</p><a class="btn btn-dark" href="{{ setting.instagram_url }}" target="_blank" rel="noopener">باز کردن Instagram ↗</a></div>{% endif %}
+
+    {% if order.payment_method == 'card_transfer' %}<div class="success-card"><h2>ارسال رسید پرداخت</h2><form class="receipt-form" action="{% url 'shop:receipt_upload' order.order_number %}" method="post" enctype="multipart/form-data">{% csrf_token %}<input type="hidden" name="mobile" value="{{ order.mobile }}"><label>تصویر رسید {{ receipt_form.image }}</label><label>توضیح (اختیاری) {{ receipt_form.note }}</label><button class="btn btn-dark" type="submit">ثبت رسید</button></form>{% if order.receipts.all %}<div class="receipt-history"><b>رسیدهای ثبت شده</b>{% for receipt in order.receipts.all %}<span>{{ receipt.uploaded_at|date:"Y/m/d H:i" }} — {{ receipt.get_status_display }}</span>{% endfor %}</div>{% endif %}</div>{% endif %}
+  </section>
+
+  <aside class="order-summary">
+    <h2>جزئیات سفارش</h2>
+    {% for item in order.items.all %}<div class="success-item"><span>{{ item.brand_name }} — {{ item.product_title }}<small>سایز {{ item.size }} × {{ item.quantity }}</small></span><b>{{ item.line_total|floatformat:0 }} تومان</b></div>{% endfor %}
+    <div class="summary-row"><span>جمع کالاها</span><b>{{ order.subtotal|floatformat:0 }} تومان</b></div>
+    {% if order.discount_amount %}<div class="summary-row discount"><span>تخفیف</span><b>− {{ order.discount_amount|floatformat:0 }} تومان</b></div>{% endif %}
+    <div class="summary-row"><span>ارسال</span><b>{{ order.shipping_fee|floatformat:0 }} تومان</b></div>
+    <div class="summary-total"><span>مبلغ نهایی</span><b>{{ order.display_total }}</b></div>
+    <hr><p><b>گیرنده:</b> {{ order.customer_name }}</p><p><b>ارسال:</b> {{ order.province }}، {{ order.city }}</p><p><b>روش ارسال:</b> {{ order.get_shipping_method_display }}</p>
+    <a class="continue-link" href="{% url 'shop:track_order' %}">پیگیری سفارش ←</a>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,132 @@
+
+{#BASE TEMPLATE / SITE SHELL#}
+{#Shared parts for every page: <head>, header, right-side drawer, footer and#}
+{#mobile navigation. Individual pages fill Django template blocks.#}
+{% load static %}
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f6f0eb">
+  <meta name="color-scheme" content="light">
+  <title>{% block title %}SHESTAR | پوشاک اورجینال برندها{% endblock %}</title>
+  <meta name="description" content="{% block description %}فروش آنلاین پوشاک اورجینال برندهای مختلف با نمایش موجودی، سایز، ثبت سفارش و پیگیری سفارش.{% endblock %}">
+  <link rel="icon" type="image/webp" href="{% static 'shop/images/shestar-logo.webp' %}">
+  <link rel="apple-touch-icon" href="{% static 'shop/images/shestar-logo.webp' %}">
+  <link rel="stylesheet" href="{% static 'shop/css/site.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <div class="topbar">
+    <div class="container topbar-inner"><span>{{ home_content.announcement_text }}</span></div>
+  </div>
+
+  <header class="header">
+    <div class="container header-main">
+      <div class="header-actions">
+        <a class="header-link desktop-only" href="{% url 'shop:track_order' %}">پیگیری سفارش</a>
+        <a class="cart-link" href="{% url 'shop:cart_page' %}" aria-label="سبد خرید">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7Zm3 0V5a3 3 0 0 1 6 0v2"/></svg>
+          <span>سبد</span><b data-cart-count>{{ global_cart_count }}</b>
+        </a>
+      </div>
+
+      <form class="header-search" action="{% url 'shop:shop_list' %}" method="get" role="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"/></svg>
+        <input name="q" value="{{ request.GET.q }}" placeholder="جستجو بین لباس‌ها، Brand و کد محصول…" autocomplete="off">
+      </form>
+
+      <a class="logo logo-with-image" href="{% url 'shop:home' %}" aria-label="SHESTAR home">
+        <img src="{% static 'shop/images/shestar-logo.webp' %}" alt="SHESTAR">
+        <span class="logo-word">SHESTAR</span>
+      </a>
+
+      <button class="site-menu-btn" type="button" data-menu-open aria-label="باز کردن منوی دسته‌بندی" aria-controls="site-drawer" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <aside class="mobile-drawer" id="site-drawer" data-mobile-menu aria-hidden="true">
+    <div class="drawer-head">
+      <a class="logo logo-with-image" href="{% url 'shop:home' %}">
+        <img src="{% static 'shop/images/shestar-logo.webp' %}" alt="SHESTAR">
+        <span class="logo-word">SHESTAR</span>
+      </a>
+      <button type="button" data-menu-close aria-label="بستن منو">×</button>
+    </div>
+
+    <form class="drawer-search" action="{% url 'shop:shop_list' %}" method="get">
+      <input name="q" placeholder="جستجو در SHESTAR…" autocomplete="off"><button>جستجو</button>
+    </form>
+
+    <nav class="drawer-categories" aria-label="دسته بندی محصولات">
+      <span class="drawer-label">SHOP</span>
+      <a href="{% url 'shop:shop_list' %}"><b>همه محصولات</b><span>All products</span></a>
+      <a href="{% url 'shop:shop_list' %}?category=bags-hats"><b>کیف و کلاه</b><span>Bags & Hats</span></a>
+      <a href="{% url 'shop:shop_list' %}?category=dresses"><b>پیراهن</b><span>Dresses</span></a>
+      <a href="{% url 'shop:shop_list' %}?category=skirts-shorts"><b>شلوارک و دامن</b><span>Shorts & Skirts</span></a>
+      <a href="{% url 'shop:shop_list' %}?category=crops-tees"><b>کراپ و تیشرت</b><span>Crops & T-shirts</span></a>
+    </nav>
+
+    <div class="drawer-secondary">
+      <a href="{% url 'shop:track_order' %}">پیگیری سفارش</a>
+      <a href="{% url 'shop:info_page' 'authenticity' %}">ضمانت اصالت</a>
+      <a href="{% url 'shop:info_page' 'shipping' %}">ارسال و تحویل</a>
+      <a href="{{ site_settings.instagram_url }}" target="_blank" rel="noopener">Instagram ↗</a>
+    </div>
+    <div class="drawer-instagram">@shestar.collection</div>
+  </aside>
+  <div class="drawer-scrim" data-drawer-scrim hidden></div>
+
+  {% if messages %}
+  <div class="message-stack container">
+    {% for message in messages %}<div class="message {{ message.tags }}">{{ message }}<button type="button" aria-label="بستن">×</button></div>{% endfor %}
+  </div>
+  {% endif %}
+
+  <main>{% block content %}{% endblock %}</main>
+
+  <section class="service-band">
+    <div class="container service-grid">
+      <div><b>اصل، نه دوپ</b><span>ثبت Brand و کد واقعی هر محصول</span></div>
+      <div><b>موجودی واقعی</b><span>سایزهای ناموجود قابل سفارش نیستند</span></div>
+      <div><b>پیگیری سفارش</b><span>با شماره سفارش و موبایل</span></div>
+      <div><b>پشتیبانی</b><span>{% if site_settings.support_phone %}{{ site_settings.support_phone }}{% else %}از طریق Instagram SHESTAR{% endif %}</span></div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a class="logo logo-with-image" href="{% url 'shop:home' %}"><img src="{% static 'shop/images/shestar-logo.webp' %}" alt="SHESTAR"><span class="logo-word">SHESTAR</span></a>
+        <p>{{ home_content.footer_about }}</p>
+        <a class="instagram-link" href="{{ site_settings.instagram_url }}" target="_blank" rel="noopener">@shestar.collection ↗</a>
+      </div>
+      <div><h3>{{ home_content.footer_shop_heading }}</h3><a href="{% url 'shop:shop_list' %}">فروشگاه</a><a href="{% url 'shop:cart_page' %}">سبد خرید</a><a href="{% url 'shop:track_order' %}">پیگیری سفارش</a></div>
+      <div><h3>{{ home_content.footer_help_heading }}</h3><a href="{% url 'shop:info_page' 'authenticity' %}">ضمانت اصالت</a><a href="{% url 'shop:info_page' 'shipping' %}">ارسال و تحویل</a><a href="{% url 'shop:info_page' 'returns' %}">تعویض و مرجوعی</a><a href="{% url 'shop:info_page' 'faq' %}">سوالات متداول</a></div>
+      <div><h3>{{ home_content.footer_about_heading }}</h3><a href="{% url 'shop:info_page' 'about' %}">درباره SHESTAR</a><a href="{{ site_settings.instagram_url }}" target="_blank" rel="noopener">Instagram</a>{% if site_settings.support_phone %}<a href="tel:{{ site_settings.support_phone }}">{{ site_settings.support_phone }}</a>{% endif %}</div>
+    </div>
+    <div class="container footer-bottom"><span>© {% now "Y" %} SHESTAR</span><span>{{ home_content.footer_bottom_text }}</span></div>
+  </footer>
+
+  <nav class="mobile-bottom-nav" aria-label="ناوبری موبایل">
+    <a href="{% url 'shop:home' %}"><span>⌂</span>خانه</a>
+    <a href="{% url 'shop:shop_list' %}"><span>⌕</span>فروشگاه</a>
+    <a href="{% url 'shop:track_order' %}"><span>◎</span>پیگیری</a>
+    <a href="{% url 'shop:cart_page' %}" class="mobile-cart"><span>▢</span>سبد <b data-cart-count>{{ global_cart_count }}</b></a>
+  </nav>
+
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+  <script>
+    window.SHESTAR = {
+      cartUrl: "{% url 'shop:cart_detail' %}",
+      addUrl: "{% url 'shop:cart_add' %}",
+      updateUrl: "{% url 'shop:cart_update' %}"
+    };
+  </script>
+  <script src="{% static 'shop/js/site.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

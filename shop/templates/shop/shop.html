@@ -1,0 +1,32 @@
+{# SHOP PAGE: filters, sorting and product grid. #}
+{% extends 'shop/base.html' %}
+{% block title %}فروشگاه | SHESTAR{% endblock %}
+{% block content %}
+<section class="page-hero compact"><div class="container"><span class="kicker">SHOP</span><h1>فروشگاه</h1><p>محصولات را با برند، دسته، قیمت و موجودی فیلتر کن.</p></div></section>
+
+<div class="container shop-layout">
+  <aside class="filters">
+    <div class="filter-title"><h2>فیلترها</h2><a href="{% url 'shop:shop_list' %}">پاک کردن</a></div>
+    <form method="get" action="{% url 'shop:shop_list' %}">
+      <label class="filter-group"><span>جستجو</span><input name="q" value="{{ selected.q }}" placeholder="نام یا کد محصول"></label>
+      <label class="filter-group"><span>برند</span><select name="brand"><option value="">همه برندها</option>{% for brand in brands %}<option value="{{ brand.slug }}" {% if selected.brand == brand.slug %}selected{% endif %}>{{ brand.name }}</option>{% endfor %}</select></label>
+      <label class="filter-group"><span>دسته‌بندی</span><select name="category"><option value="">همه دسته‌ها</option>{% for value,label in categories %}<option value="{{ value }}" {% if selected.category == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+      <div class="filter-group"><span>بازه قیمت (تومان)</span><div class="price-inputs"><input name="min_price" inputmode="numeric" value="{{ selected.min_price }}" placeholder="از"><input name="max_price" inputmode="numeric" value="{{ selected.max_price }}" placeholder="تا"></div></div>
+      <label class="check-row"><input type="checkbox" name="available" value="1" {% if selected.available == '1' %}checked{% endif %}><span>فقط کالاهای موجود</span></label>
+      <label class="filter-group"><span>مرتب‌سازی</span><select name="sort"><option value="newest" {% if selected.sort == 'newest' %}selected{% endif %}>جدیدترین</option><option value="price_asc" {% if selected.sort == 'price_asc' %}selected{% endif %}>ارزان‌ترین</option><option value="price_desc" {% if selected.sort == 'price_desc' %}selected{% endif %}>گران‌ترین</option><option value="brand" {% if selected.sort == 'brand' %}selected{% endif %}>بر اساس برند</option></select></label>
+      <button class="btn btn-dark full" type="submit">اعمال فیلتر</button>
+    </form>
+  </aside>
+
+  <section class="shop-results">
+    <div class="results-bar"><span>{{ page_obj.paginator.count }} محصول</span><button type="button" class="mobile-filter-btn" data-filter-toggle>فیلتر و مرتب‌سازی</button></div>
+    {% if page_obj.object_list %}<div class="product-grid shop-grid">{% for product in page_obj %}{% include 'shop/partials/product_card.html' with product=product %}{% endfor %}</div>{% else %}<div class="empty-state"><h3>چیزی پیدا نشد.</h3><p>فیلترها را تغییر بده یا عبارت دیگری جستجو کن.</p><a class="btn btn-outline" href="{% url 'shop:shop_list' %}">نمایش همه محصولات</a></div>{% endif %}
+
+    {% if page_obj.paginator.num_pages > 1 %}<nav class="pagination" aria-label="صفحه‌بندی">
+      {% if page_obj.has_previous %}<a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">قبلی</a>{% endif %}
+      <span>صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}<a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.next_page_number }}">بعدی</a>{% endif %}
+    </nav>{% endif %}
+  </section>
+</div>
+{% endblock %}

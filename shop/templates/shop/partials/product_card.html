@@ -1,0 +1,23 @@
+<article class="product-card">
+  <a class="product-thumb" href="{{ product.get_absolute_url }}">
+    {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.brand.name }} {{ product.title }}" loading="lazy">{% else %}<div class="product-placeholder">SHESTAR</div>{% endif %}
+    <div class="badges">
+      {% if product.discount_percent %}<span class="badge sale">٪{{ product.discount_percent }}-</span>{% endif %}
+      {% if product.is_new %}<span class="badge">جدید</span>{% endif %}
+      {% if product.original_guarantee %}<span class="badge original">اصل</span>{% endif %}
+    </div>
+    {% if not product.in_stock %}<span class="soldout-overlay">ناموجود</span>{% endif %}
+  </a>
+  <div class="product-card-body">
+    <a href="{% url 'shop:shop_list' %}?brand={{ product.brand.slug }}" class="card-brand">{{ product.brand.name }}</a>
+    <a href="{{ product.get_absolute_url }}" class="card-title">{{ product.title }}</a>
+    {% if product.color %}<span class="card-sub">{{ product.color }}</span>{% endif %}
+    <div class="card-price">
+      <strong>{{ product.display_price }}</strong>
+      {% if product.display_compare_price %}<del>{{ product.display_compare_price }}</del>{% endif %}
+    </div>
+    <div class="card-sizes">
+      {% for variant in product.variants.all %}{% if variant.active %}<span class="{% if variant.stock < 1 %}out{% endif %}">{{ variant.size }}</span>{% endif %}{% empty %}<span>سایز ثبت نشده</span>{% endfor %}
+    </div>
+  </div>
+</article>

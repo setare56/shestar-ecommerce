@@ -1,0 +1,31 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+{% block content %}
+<div id="content-main" class="shestar-dashboard">
+  <section class="admin-welcome">
+    <div><span class="admin-kicker">SHESTAR CONTROL CENTER</span><h1>سلام {{ request.user.first_name|default:request.user.username }} 👋</h1><p>کارهای روزمره فروشگاه را از این میانبرها انجام بده. تنظیمات حساس فقط برای مدیریت اصلی نمایش داده می‌شود.</p></div>
+    <a class="admin-primary" href="{% url 'admin:shop_product_add' %}">＋ محصول جدید</a>
+  </section>
+
+  <section class="quick-grid">
+    <a class="quick-card" href="{% url 'admin:shop_product_changelist' %}"><span>01</span><b>محصولات</b><small>قیمت، عکس، سایز و موجودی</small></a>
+    <a class="quick-card" href="{% url 'admin:shop_order_changelist' %}"><span>02</span><b>سفارش‌ها</b><small>پرداخت، آماده‌سازی و ارسال</small></a>
+    <a class="quick-card" href="{% url 'admin:shop_brand_changelist' %}"><span>03</span><b>Brandها</b><small>فعال‌سازی و ترتیب نمایش</small></a>
+    <a class="quick-card" href="{% url 'admin:shop_coupon_changelist' %}"><span>04</span><b>کد تخفیف</b><small>ساخت و مدیریت تخفیف‌ها</small></a>
+    {% if request.user.is_superuser %}
+    <a class="quick-card advanced" href="{% url 'admin:shop_homepagecontent_changelist' %}"><span>★</span><b>ویرایش صفحه اصلی</b><small>Hero، بدنه، Instagram و Footer</small></a>
+    <a class="quick-card advanced" href="{% url 'admin:shop_sitesetting_changelist' %}"><span>⚙</span><b>تنظیمات پیشرفته</b><small>ارسال، کارت، پشتیبانی و اصالت</small></a>
+    {% endif %}
+  </section>
+
+  {% if request.user.is_superuser %}
+  <div class="admin-tip"><b>مدیریت اصلی:</b> برای عوض کردن نوشته‌های Home و Footer وارد <strong>ویرایش صفحه اصلی</strong> شو. تغییرات بعد از Save مستقیم روی سایت اعمال می‌شوند.</div>
+  {% endif %}
+
+  <section class="all-models">
+    <h2>همه بخش‌های مدیریت</h2>
+    {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+  </section>
+</div>
+{% endblock %}
+{% block sidebar %}{% endblock %}

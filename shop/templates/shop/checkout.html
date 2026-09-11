@@ -1,0 +1,45 @@
+{# CHECKOUT PAGE: customer, shipping and payment information. #}
+{% extends 'shop/base.html' %}
+{% block title %}ثبت سفارش | SHESTAR{% endblock %}
+{% block content %}
+<section class="page-hero compact"><div class="container"><span class="kicker">CHECKOUT</span><h1>ثبت سفارش</h1><p>اطلاعات را دقیق وارد کن تا ارسال و پیگیری بدون دردسر انجام شود.</p></div></section>
+
+<form class="container checkout-layout" method="post" action="{% url 'shop:checkout' %}" data-checkout-form data-standard-fee="{{ setting.standard_shipping_fee }}" data-express-fee="{{ setting.express_shipping_fee }}" data-free-threshold="{{ setting.free_shipping_threshold }}" data-merchandise-total="{{ cart.total_after_discount }}">
+  {% csrf_token %}
+  <section class="checkout-form-panel">
+    {% if form.non_field_errors %}<div class="form-error-block">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="checkout-step"><span>01</span><div><h2>اطلاعات گیرنده</h2><p>برای پیگیری سفارش همین شماره موبایل استفاده می‌شود.</p></div></div>
+    <div class="form-grid">
+      <label class="field span-2">{{ form.customer_name.label_tag }}{{ form.customer_name }}{{ form.customer_name.errors }}</label>
+      <label class="field">{{ form.mobile.label_tag }}{{ form.mobile }}{{ form.mobile.errors }}</label>
+      <label class="field">{{ form.email.label_tag }}{{ form.email }}{{ form.email.errors }}</label>
+      <label class="field">{{ form.province.label_tag }}{{ form.province }}{{ form.province.errors }}</label>
+      <label class="field">{{ form.city.label_tag }}{{ form.city }}{{ form.city.errors }}</label>
+      <label class="field span-2">{{ form.address.label_tag }}{{ form.address }}{{ form.address.errors }}</label>
+      <label class="field">{{ form.postal_code.label_tag }}{{ form.postal_code }}{{ form.postal_code.errors }}</label>
+      <label class="field span-2">{{ form.notes.label_tag }}{{ form.notes }}{{ form.notes.errors }}</label>
+    </div>
+
+    <div class="checkout-step"><span>02</span><div><h2>روش ارسال</h2><p>هزینه نهایی بر اساس روش انتخابی محاسبه می‌شود.</p></div></div>
+    <div class="radio-cards">{% for radio in form.shipping_method %}<label class="radio-card">{{ radio.tag }}<span><b>{{ radio.choice_label }}</b>{% if forloop.first %}<small>{{ setting.standard_shipping_fee|default:0 }} تومان</small>{% else %}<small>{{ setting.express_shipping_fee|default:0 }} تومان</small>{% endif %}</span></label>{% endfor %}</div>
+    {{ form.shipping_method.errors }}
+
+    <div class="checkout-step"><span>03</span><div><h2>روش پرداخت</h2><p>نسخه فعلی بدون نیاز به درگاه بانکی هم قابل استفاده است.</p></div></div>
+    <div class="radio-cards">{% for radio in form.payment_method %}<label class="radio-card">{{ radio.tag }}<span><b>{{ radio.choice_label }}</b>{% if forloop.first %}<small>بعد از ثبت سفارش، اطلاعات کارت نمایش داده می‌شود و رسید را آپلود می‌کنی.</small>{% else %}<small>سفارش ثبت می‌شود و پرداخت با پشتیبانی هماهنگ می‌شود.</small>{% endif %}</span></label>{% endfor %}</div>
+    {{ form.payment_method.errors }}
+
+    <label class="terms-row">{{ form.terms }}<span>{{ form.terms.label }} <a href="{% url 'shop:info_page' 'returns' %}" target="_blank">مشاهده شرایط</a></span></label>{{ form.terms.errors }}
+  </section>
+
+  <aside class="order-summary checkout-summary">
+    <h2>سفارش شما</h2>
+    <div class="checkout-products">{% for item in cart.items %}<div><span>{{ item.brand }} — {{ item.title }} <small>سایز {{ item.size }} × {{ item.quantity }}</small></span><b>{{ item.line_total_display }}</b></div>{% endfor %}</div>
+    <div class="summary-row"><span>جمع کالاها</span><b>{{ cart.subtotal_display }}</b></div>
+    {% if cart.discount %}<div class="summary-row discount"><span>تخفیف</span><b>− {{ cart.discount_display }}</b></div>{% endif %}
+    <div class="summary-row"><span>ارسال</span><b data-shipping-preview>{{ shipping_fee_preview|floatformat:0 }} تومان</b></div>
+    <div class="summary-total"><span>مبلغ نهایی</span><b data-grand-total>{{ grand_total_preview|floatformat:0 }} تومان</b></div>
+    <button class="btn btn-dark full" type="submit">ثبت نهایی سفارش</button>
+    <p class="safe-note">با ثبت سفارش، موجودی سایزهای انتخابی از انبار کم می‌شود و شماره سفارش برای پیگیری دریافت می‌کنی.</p>
+  </aside>
+</form>
+{% endblock %}

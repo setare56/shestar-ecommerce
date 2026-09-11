@@ -1,0 +1,33 @@
+{# CART PAGE: selected items, quantity controls and totals. #}
+{% extends 'shop/base.html' %}
+{% block title %}سبد خرید | SHESTAR{% endblock %}
+{% block content %}
+<section class="page-hero compact"><div class="container"><span class="kicker">YOUR BAG</span><h1>سبد خرید</h1><p>{{ cart.count }} آیتم در سبد</p></div></section>
+
+<div class="container cart-layout">
+  <section class="cart-items-section">
+    {% if cart.items %}
+      {% for item in cart.items %}<article class="cart-item">
+        <a class="cart-item-image" href="{{ item.product_url }}">{% if item.image %}<img src="{{ item.image }}" alt="{{ item.title }}">{% else %}<div class="product-placeholder">SHESTAR</div>{% endif %}</a>
+        <div class="cart-item-info"><span class="card-brand">{{ item.brand }}</span><a href="{{ item.product_url }}" class="cart-title">{{ item.title }}</a><p>سایز: <b>{{ item.size }}</b></p><p>{{ item.unit_price_display }}</p></div>
+        <form class="qty-form" method="post" action="{% url 'shop:cart_update' %}">{% csrf_token %}<input type="hidden" name="variant_id" value="{{ item.variant_id }}"><label>تعداد<input type="number" name="quantity" value="{{ item.quantity }}" min="0" max="{{ item.stock }}"></label><button>بروزرسانی</button></form>
+        <div class="cart-line-total"><b>{{ item.line_total_display }}</b><form method="post" action="{% url 'shop:cart_remove' %}">{% csrf_token %}<input type="hidden" name="variant_id" value="{{ item.variant_id }}"><button class="remove-link">حذف</button></form></div>
+      </article>{% endfor %}
+    {% else %}
+      <div class="empty-state"><h3>سبدت خالیه.</h3><p>از فروشگاه چند آیتم انتخاب کن و برگرد اینجا.</p><a class="btn btn-dark" href="{% url 'shop:shop_list' %}">رفتن به فروشگاه</a></div>
+    {% endif %}
+  </section>
+
+  {% if cart.items %}<aside class="order-summary">
+    <h2>خلاصه سفارش</h2>
+    <div class="summary-row"><span>جمع کالاها</span><b>{{ cart.subtotal_display }}</b></div>
+    {% if cart.discount %}<div class="summary-row discount"><span>تخفیف{% if cart.coupon %} ({{ cart.coupon }}){% endif %}</span><b>− {{ cart.discount_display }}</b></div>{% endif %}
+    <div class="summary-row muted-row"><span>هزینه ارسال</span><b>در مرحله بعد</b></div>
+    <div class="summary-total"><span>مبلغ فعلی</span><b>{{ cart.total_after_discount_display }}</b></div>
+
+    <form class="coupon-form" method="post" action="{% url 'shop:coupon_apply' %}">{% csrf_token %}<label for="coupon">کد تخفیف</label><div><input id="coupon" name="code" value="{{ cart.coupon|default:'' }}" placeholder="کد تخفیف"><button>اعمال</button></div></form>
+    {% if cart.can_checkout %}<a class="btn btn-dark full" href="{% url 'shop:checkout' %}">ادامه و ثبت سفارش</a>{% else %}<p class="checkout-warning">یکی از محصولات قیمت قابل پرداخت ندارد. با پشتیبانی هماهنگ کنید.</p>{% endif %}
+    <a class="continue-link" href="{% url 'shop:shop_list' %}">ادامه خرید ←</a>
+  </aside>{% endif %}
+</div>
+{% endblock %}

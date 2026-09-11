@@ -1,0 +1,105 @@
+{#HOMEPAGE#}
+{#Most text comes from HomePageContent, so the owner can edit homepage copy from#}
+{#Django Admin without touching this HTML file.#}
+{% extends 'shop/base.html' %}
+{% load static %}
+{% block title %}{{ home_content.meta_title }}{% endblock %}
+{% block description %}{{ home_content.meta_description }}{% endblock %}
+{% block content %}
+<section class="home-hero">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <span class="kicker">{{ home_content.hero_kicker }}</span>
+      <h1>{{ home_content.hero_title|linebreaksbr }}</h1>
+      <p>{{ home_content.hero_text }}</p>
+      <div class="hero-actions">
+        <a class="btn btn-dark" href="{% url 'shop:shop_list' %}">{{ home_content.hero_primary_button }}</a>
+        <a class="text-link" href="{{ site_settings.instagram_url }}" target="_blank" rel="noopener">{{ home_content.hero_secondary_button }} ↗</a>
+      </div>
+      <div class="hero-mini"><span>H&M</span><span>Mango</span><span>SHEIN</span><span>Stradivarius</span><span>Bershka</span><span>Zara</span></div>
+    </div>
+
+    <div class="hero-visual personalized-hero">
+      {% if hero_product and hero_product.image %}
+        <a href="{{ hero_product.get_absolute_url }}"><img src="{{ hero_product.image.url }}" alt="{{ hero_product.brand.name }} {{ hero_product.title }}"></a>
+        <div class="hero-product-tag"><span>{{ hero_product.brand.name }}</span><b>{{ hero_product.title }}</b><em>{{ hero_product.display_price }}</em></div>
+      {% else %}
+        <a href="{% url 'shop:shop_list' %}"><img src="{% static 'shop/images/look-polka.webp' %}" alt="SHESTAR collection" fetchpriority="high" decoding="async"></a>
+        <div class="hero-product-tag"><span>SHESTAR EDIT</span><b>New arrivals</b><em>SHOP NOW</em></div>
+      {% endif %}
+      <img loading="lazy" decoding="async" class="hero-stamp" src="{% static 'shop/images/shestar-logo.webp' %}" alt="" aria-hidden="true">
+    </div>
+  </div>
+</section>
+
+<section class="promise-strip">
+  <div class="container promise-grid">
+    <div><span>01</span><p><b>{{ home_content.promise_1_title }}</b>{{ home_content.promise_1_text }}</p></div>
+    <div><span>02</span><p><b>{{ home_content.promise_2_title }}</b>{{ home_content.promise_2_text }}</p></div>
+    <div><span>03</span><p><b>{{ home_content.promise_3_title }}</b>{{ home_content.promise_3_text }}</p></div>
+  </div>
+</section>
+
+<section class="section container category-showcase">
+  <div class="section-head">
+    <div><span class="kicker">{{ home_content.category_kicker }}</span><h2>{{ home_content.category_title }}</h2></div>
+    <a class="text-link" href="{% url 'shop:shop_list' %}">همه محصولات ←</a>
+  </div>
+  <div class="category-photo-grid">
+    <a class="category-photo" href="{% url 'shop:shop_list' %}?category=bags-hats">
+      <img loading="lazy" decoding="async" src="{% static 'shop/images/look-bag.webp' %}" alt="کیف و کلاه">
+      <span class="category-photo-shade"></span>
+      <div><small>BAGS & HATS</small><h3>کیف و کلاه</h3></div>
+    </a>
+    <a class="category-photo" href="{% url 'shop:shop_list' %}?category=dresses">
+      <img loading="lazy" decoding="async" src="{% static 'shop/images/look-dress.webp' %}" alt="پیراهن">
+      <span class="category-photo-shade"></span>
+      <div><small>DRESSES</small><h3>پیراهن</h3></div>
+    </a>
+    <a class="category-photo" href="{% url 'shop:shop_list' %}?category=skirts-shorts">
+      <img loading="lazy" decoding="async" src="{% static 'shop/images/look-polka.webp' %}" alt="شلوارک و دامن">
+      <span class="category-photo-shade"></span>
+      <div><small>SHORTS & SKIRTS</small><h3>شلوارک و دامن</h3></div>
+    </a>
+    <a class="category-photo" href="{% url 'shop:shop_list' %}?category=crops-tees">
+      <img loading="lazy" decoding="async" src="{% static 'shop/images/look-crop.webp' %}" alt="کراپ و تیشرت">
+      <span class="category-photo-shade"></span>
+      <div><small>CROPS & T-SHIRTS</small><h3>کراپ و تیشرت</h3></div>
+    </a>
+  </div>
+</section>
+
+<section class="section container" id="new">
+  <div class="section-head"><div><span class="kicker">{{ home_content.new_kicker }}</span><h2>{{ home_content.new_title }}</h2></div><a class="text-link" href="{% url 'shop:shop_list' %}?sort=newest">مشاهده همه ←</a></div>
+  {% if new_products %}
+  <div class="product-grid">{% for product in new_products %}{% include 'shop/partials/product_card.html' with product=product %}{% endfor %}</div>
+  {% else %}
+  <div class="empty-state"><h3>هنوز محصولی منتشر نشده.</h3><p>بعد از اضافه کردن محصول در پنل مدیریت، این بخش خودکار پر می‌شود.</p></div>
+  {% endif %}
+</section>
+
+<section class="lookbook-band">
+  <div class="container lookbook-grid">
+    <div class="lookbook-image tall"><img loading="lazy" decoding="async" src="{% static 'shop/images/look-maxi.webp' %}" alt="SHESTAR look"></div>
+    <div class="lookbook-copy"><img loading="lazy" decoding="async" src="{% static 'shop/images/shestar-logo.webp' %}" alt="SHESTAR"><span class="kicker">{{ home_content.lookbook_kicker }}</span><h2>{{ home_content.lookbook_title }}</h2><p>{{ home_content.lookbook_text }}</p><a class="btn btn-pink" href="{{ site_settings.instagram_url }}" target="_blank" rel="noopener">{{ home_content.lookbook_button }}</a></div>
+    <div class="lookbook-image"><img loading="lazy" decoding="async" src="{% static 'shop/images/look-dress-2.webp' %}" alt="SHESTAR outfit"></div>
+  </div>
+</section>
+
+<section class="brand-section">
+  <div class="container">
+    <div class="section-head light"><div><span class="kicker">{{ home_content.brands_kicker }}</span><h2>{{ home_content.brands_title }}</h2></div></div>
+    <div class="brand-wall">
+      {% for brand in brands %}<a href="{% url 'shop:shop_list' %}?brand={{ brand.slug }}">{{ brand.name }}</a>{% empty %}<span>SHEIN</span><span>H&M</span><span>Mango</span><span>Stradivarius</span>{% endfor %}
+    </div>
+    <p class="brand-disclaimer">{{ home_content.brands_disclaimer }}</p>
+  </div>
+</section>
+
+<section class="section container authenticity-home">
+  <div><span class="kicker">{{ home_content.why_kicker }}</span><h2>{{ home_content.why_title }}</h2></div>
+  <div><p>{{ site_settings.authenticity_text }}</p><ul><li>Product Code و SKU قابل ثبت برای هر آیتم</li><li>امکان درج لینک مرجع رسمی محصول</li><li>نمایش شفاف وضعیت نو، Outlet یا Pre-order</li><li>موجودی جداگانه برای هر سایز</li></ul><a class="btn btn-outline" href="{% url 'shop:info_page' 'authenticity' %}">بیشتر درباره اصالت</a></div>
+</section>
+
+<section class="instagram-banner"><div class="container"><span>{{ home_content.instagram_handle }}</span><h2>{{ home_content.instagram_title }}</h2><a href="{{ site_settings.instagram_url }}" target="_blank" rel="noopener">Instagram ↗</a></div></section>
+{% endblock %}
